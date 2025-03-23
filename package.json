@@ -1,0 +1,30 @@
+{
+  "name": "img-downloader",
+  "version": "1.0.0",
+  "description": "一个从网页批量下载图片的工具",
+  "main": "index.js",
+  "bin": {
+    "img-downloader": "./bin/img-downloader.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "img-download": "node bin/img-downloader.js",
+    "puppeteer-download": "node src/puppeteer-downloader.js"
+  },
+  "keywords": [
+    "image",
+    "download",
+    "crawler",
+    "cli"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "fs-extra": "^11.1.1",
+    "node-fetch": "^3.3.2",
+    "puppeteer": "^22.15.0"
+  }
+}

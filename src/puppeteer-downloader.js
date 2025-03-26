@@ -6,7 +6,7 @@ const https = require("https");
 const http = require("http");
 
 // 定义下载目录
-const DOWNLOAD_DIR = path.join(process.cwd(), "downloaded_images");
+const DOWNLOAD_DIR = path.join(process.cwd(), "");
 // 设置最大重试次数
 const MAX_RETRIES = 3;
 // 重试延迟（毫秒）
@@ -208,11 +208,10 @@ async function downloadImage(url, filename, browser, retryCount = 0) {
 
 /**
  * 主函数
+ * @param {string} htmlFilePath HTML文件路径
  */
-async function main() {
+async function main(htmlFilePath) {
   try {
-    const htmlFilePath = path.join(process.cwd(), "data.html");
-
     // 确保下载目录存在
     await fs.ensureDir(DOWNLOAD_DIR);
 
@@ -281,8 +280,15 @@ async function main() {
     console.log(`所有图片保存在 ${DOWNLOAD_DIR} 目录中`);
   } catch (error) {
     console.error("程序执行失败:", error);
+    throw error;
   }
 }
 
-// 执行主函数
-main();
+// 如果直接运行此文件，则执行main函数
+if (require.main === module) {
+  const htmlFilePath = path.join(process.cwd(), "data.html");
+  main(htmlFilePath);
+}
+
+// 导出main函数供其他文件使用
+module.exports = main;

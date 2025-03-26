@@ -11,6 +11,12 @@ const DOWNLOAD_DIR = path.join(process.cwd(), "downloaded_images");
 const MAX_RETRIES = 3;
 // 重试延迟（毫秒）
 const RETRY_DELAY = 2000;
+// 最大图片尺寸（像素）
+const MAX_IMAGE_SIZE = 2040;
+// 图片质量（0-1）
+const IMAGE_QUALITY = 1;
+// 是否限制图片尺寸
+const LIMIT_IMAGE_SIZE = true;
 
 /**
  * 等待指定的毫秒数
@@ -135,22 +141,41 @@ async function downloadImage(url, filename, browser, retryCount = 0) {
       });
 
       // 获取图片数据
-      const imgData = await downloadPage.evaluate(() => {
-        const img = document.querySelector("img");
-        if (!img) return null;
+      const imgData = await downloadPage.evaluate(
+        (maxSize, quality, limitSize) => {
+          const img = document.querySelector("img");
+          if (!img) return null;
 
-        // 创建canvas
-        const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
+          // 计算新的尺寸，保持宽高比
+          let width = img.naturalWidth;
+          let height = img.naturalHeight;
 
-        // 将图片绘制到canvas
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
+          if (limitSize && (width > maxSize || height > maxSize)) {
+            if (width > height) {
+              height = Math.round((height * maxSize) / width);
+              width = maxSize;
+            } else {
+              width = Math.round((width * maxSize) / height);
+              height = maxSize;
+            }
+          }
 
-        // 获取图片数据
-        return canvas.toDataURL("image/png");
-      });
+          // 创建canvas
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+
+          // 将图片绘制到canvas
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // 获取压缩后的图片数据
+          return canvas.toDataURL("image/jpeg", quality);
+        },
+        MAX_IMAGE_SIZE,
+        IMAGE_QUALITY,
+        LIMIT_IMAGE_SIZE
+      );
 
       if (!imgData) {
         throw new Error("无法获取图片数据");
@@ -244,7 +269,7 @@ async function main() {
         // 每下载5张图片暂停一下，避免请求过快
         if ((i + 1) % 5 === 0 && i < imageUrls.length - 1) {
           console.log("暂停下载，避免请求过快...");
-          await sleep(3000);
+          await sleep(2000);
         }
       }
     } finally {

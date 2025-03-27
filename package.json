@@ -4,7 +4,7 @@
   "description": "从HTML文件中下载图片的命令行工具",
   "main": "src/puppeteer-downloader.js",
   "bin": {
-    "img-downloader": "./bin/img-downloader.js"
+    "img-down": "./bin/img-downloader.js"
   },
   "scripts": {
   },

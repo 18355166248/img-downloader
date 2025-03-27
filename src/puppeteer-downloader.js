@@ -42,23 +42,31 @@ async function extractImageUrls(htmlFilePath) {
 
     // 提取所有图片的URL
     const imageUrls = [];
+    const uniqueUrls = new Set(); // 使用Set来存储唯一的URL
 
     // 查找所有img标签
     $("img").each((index, element) => {
       // 优先使用src属性，如果没有则使用data-src属性
-      const url = $(element).attr("src") || $(element).attr("data-src");
+      const url =
+        $(element).attr("data-lazy-src") ||
+        $(element).attr("src") ||
+        $(element).attr("data-src");
+
       if (url) {
         // 清理URL（移除可能的换行符和空格）
         const cleanUrl = url.trim().replace(/\n/g, "");
-        // 只添加有效的URL
-        if (cleanUrl.startsWith("http") && !imageUrls.includes(cleanUrl)) {
+        // 只添加有效的URL，并使用Set确保唯一性
+        if (cleanUrl.startsWith("http") && !uniqueUrls.has(cleanUrl)) {
+          uniqueUrls.add(cleanUrl);
           imageUrls.push(cleanUrl);
         }
       }
     });
 
-    console.log(`共找到 ${imageUrls.length} 张图片`);
-    return imageUrls;
+    // 将Set转换回数组
+    const finalImageUrls = Array.from(uniqueUrls);
+    console.log(`共找到 ${finalImageUrls.length} 张不重复的图片`);
+    return finalImageUrls;
   } catch (error) {
     console.error("提取图片URL时出错:", error);
     throw error;
@@ -192,6 +200,7 @@ async function downloadImage(url, filename, browser, retryCount = 0) {
       await page.close();
     }
   } catch (error) {
+    console.log("🚀 ~ downloadImage ~ error:", error);
     if (retryCount < MAX_RETRIES) {
       console.log(
         `下载失败，正在重试 (${retryCount + 1}/${MAX_RETRIES}): ${filename}`
@@ -246,6 +255,8 @@ async function main(htmlFilePath) {
 
         // 从URL中提取文件名
         let filename = url.split("/").pop() || `image-${i + 1}.jpg`;
+        // 删除问号后面的查询参数
+        filename = filename.split("?")[0];
 
         // 如果文件名中没有扩展名，添加.jpg扩展名
         if (!path.extname(filename)) {

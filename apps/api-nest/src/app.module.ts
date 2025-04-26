@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { configuration } from './config';
 import { validationSchema } from './config/validation.schema';
 import { UserModule } from './modules/user/user.module';
+import { ImageCrawlerModule } from './modules/image-crawler/image-crawler.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -19,6 +20,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
       validationSchema,
     }),
     UserModule,
+    ImageCrawlerModule,
   ],
   controllers: [AppController],
   providers: [

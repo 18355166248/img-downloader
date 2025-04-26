@@ -1,10 +1,12 @@
 {
-  "name": "kitchen-sink",
+  "name": "img-downloader",
   "private": true,
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo run clean",
     "dev": "turbo run dev",
+    "dev:frontend": "turbo run dev --filter=./apps/admin",
+    "dev:backend": "turbo run dev --filter=./apps/api-nest",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "lint": "turbo run lint",
     "test": "turbo run test",
